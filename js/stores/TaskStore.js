@@ -18,15 +18,15 @@ var CHANGE_EVENT = 'change';
 
 var _todos = {};
 var _notes = {};
-
+Parse.initialize(ConfigComp.APP_ID,
+                     ConfigComp.JS_ID);
 /**
  * Create a TODO item.
  * @param  {string} text The content of the TODO
  */
 function create(text) {
 
-    Parse.initialize(ConfigComp.APP_ID,
-                     ConfigComp.JS_ID);
+    
                      
     var Task            =   Parse.Object.extend("Task");
     var Note            =   Parse.Object.extend("Note");
@@ -60,8 +60,7 @@ function create(text) {
            noteObject.setACL( acl );
            noteObject.save(null, {
                  success: function(taskResult) {
-                           init();
-                           TaskStore.getAll();
+                           //init();
                   },
                 error: function(taskResult, error) {
                            console.log(error);   
@@ -74,15 +73,12 @@ function create(text) {
       
       taskObject.save(null, {
       success: function(taskResult) {
-             init();
-             TaskStore.getAll();
+             //init();
        },
       error: function(taskResult, error) {
              console.log(error);   
       }
     });
-
-  console.log(text.notes);
 }
 
 function createNote(text) {
@@ -150,10 +146,34 @@ var TaskStore = assign({}, EventEmitter.prototype, {
    * Get the entire collection of TODOs.
    * @return {object}
    */
-  getAll: function() {
+  getAll: function() { 
     return _todos;
   },
-  
+  getAllTasks: function(callback) {
+    var Task            =   Parse.Object.extend("Task");
+    var query           =   new Parse.Query(Task); 
+    query.find({
+      success: function(tasks) {
+      	for(var index=0;index<tasks.length;index++){
+                             
+               var objectResult = tasks[index];
+               
+                 _todos[objectResult.id] = {
+                     id: objectResult.id,
+                     complete : false,    
+                     name : objectResult.get("name"),
+                     description : objectResult.get("Description"),
+                     priority : objectResult.get("Priority")
+                    }; 
+                   
+            }   
+        callback(_todos);
+      },
+      error: function(obj, err) {
+        console.error('getAll() error', obj, err);
+      }
+    });
+  },
   getAllNote: function() {
     return _notes;
   },
@@ -231,36 +251,6 @@ AppDispatcher.register(function(payload) {
 
   return true; // No errors.  Needed by promise in Dispatcher.
 });
-
-
-function init(){
-    Parse.initialize(ConfigComp.APP_ID,
-                     ConfigComp.JS_ID);
-                     
-    var Task            =   Parse.Object.extend("Task");
-    var query           =   new Parse.Query(Task); 
-    
-    query.find({
-        success: function(tasks){
-                                      
-            for(var index=0;index<tasks.length;index++){
-                             
-               var objectResult = tasks[index];
-               
-                 _todos[objectResult.id] = {
-                     id: objectResult.id,
-                     complete : false,    
-                     name : objectResult.get("name"),
-                     description : objectResult.get("Description"),
-                     priority : objectResult.get("Priority")
-                    }; 
-                   
-            }   
-          console.log(_todos);
-        }
-        
-    }); 
-   }
 
 
 module.exports = TaskStore;

@@ -17,19 +17,19 @@ function getTodoState() {
     areAllComplete: TaskStore.areAllComplete()
   };
 }
-
 var TaskApp = React.createClass({
 
   getInitialState: function() {
     return getTodoState();
   },
 
-  componentDidMount: function() {
+  componentDidMount: function() {  	
+  	TaskStore.getAllTasks(this._getSate);
     TaskStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
-    TaskStore.removeChangeListener(this._onChange);
+    TaskStore.removeChangeListener(this._getSate);
   },
 
   /**
@@ -57,10 +57,13 @@ var TaskApp = React.createClass({
   /**
    * Event handler for 'change' events coming from the TaskStore
    */
-  _onChange: function() {
+  _getSate: function() {
     this.setState(getTodoState());
+  },
+  
+  _onChange : function(){
+	TaskStore.getAllTasks(this._getSate);
   }
-
 });
 
 module.exports = TaskApp;

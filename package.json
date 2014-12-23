@@ -1,5 +1,5 @@
 {
-  "name": "task-manager",
+  "name": "react-parse",
   "version": "0.0.2",
   "description": "Example React-Flux architecture.",
   "main": "js/app.js",

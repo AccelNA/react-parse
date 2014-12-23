@@ -6,11 +6,11 @@ var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var TaskActions = require('../actions/TaskActions');
 var TaskItem = require('./TaskItem.react');
-
+var TaskStore = require('../stores/TaskStore');
 var TaskList = React.createClass({
 
   propTypes: {
-    allTodos: ReactPropTypes.object.isRequired,
+  	allTodos: ReactPropTypes.object.isRequired,
     areAllComplete: ReactPropTypes.bool.isRequired
   },
 
