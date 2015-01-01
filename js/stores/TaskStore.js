@@ -15,7 +15,6 @@ var TaskConstants = require('../constants/TaskConstants');
 var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
-
 var _todos = {};
 var _notes = {};
 Parse.initialize(ConfigComp.APP_ID,
@@ -25,8 +24,6 @@ Parse.initialize(ConfigComp.APP_ID,
  * @param  {string} text The content of the TODO
  */
 function create(text) {
-
-    
                      
     var Task            =   Parse.Object.extend("Task");
     var Note            =   Parse.Object.extend("Note");
@@ -45,8 +42,7 @@ function create(text) {
          acl.setReadAccess( 'User', true );
     } else {
         acl.setReadAccess( 'Guest', true );
-    }
-   
+    }   
             
       allNotes=text.notes;
       for (var key in allNotes) {
@@ -65,15 +61,12 @@ function create(text) {
                 error: function(taskResult, error) {
                            console.log(error);   
                  }
-        });
-               
+        });               
       }
-      
-      
       
       taskObject.save(null, {
       success: function(taskResult) {
-             //init();
+             //console.log(taskResult);   
        },
       error: function(taskResult, error) {
              console.log(error);   
@@ -91,8 +84,24 @@ function createNote(text) {
  * @param {object} updates An object literal containing only the data to be
  *     updated.
  */
-function update(id, updates) {
-  _todos[id] = assign({}, _todos[id], updates);
+function update(id, IsCompleted) {
+	_todos[id] = assign({}, _todos[id], {complete: IsCompleted});
+	var Task            =   Parse.Object.extend("Task");
+	var query = new Parse.Query(Task);
+	query.equalTo("objectId", id);
+	query.first({
+	  success: function(taskObject) {
+	    taskObject.set('CompletedOn',new Date());
+    	taskObject.set('IsCompleted',IsCompleted);
+	    taskObject.save();
+	   // _todos[id] = assign({}, _todos[id], {complete: IsCompleted});
+	  },
+	  error: function(error) {
+	    alert("Error: " + error.code + " " + error.message);
+	  }
+	});
+
+  
 }
 
 /**
@@ -114,6 +123,48 @@ function updateAll(updates) {
  */
 function destroy(id) {
   delete _todos[id];
+  
+	var Task            =   Parse.Object.extend("Task");
+	var query1 = new Parse.Query(Task);
+	query1.equalTo("objectId", id);
+	query1.first({
+	  success: function(taskObject) {
+	     taskObject.destroy({
+		  success: function(myObject) {
+		  	
+			/*var Note            =   Parse.Object.extend("Note");
+			var query2 = new Parse.Query(Note);
+			
+			query2.equalTo("parent", id);
+			query2.first({
+			  success: function(noteObject) {
+			     noteObject.destroy({
+				  success: function(myObject2) {
+				  	
+				  },
+				  error: function(myObject2, error) {
+				  }
+				});
+			  },
+			  error: function(error) {
+			    alert("Error: " + error.code + " " + error.message);
+			  }
+			});*/
+		  	
+		  	
+		  	
+		  },
+		  error: function(myObject, error) {
+		    // The delete failed.
+		    // error is a Parse.Error with an error code and message.
+		  }
+		});
+	  },
+	  error: function(error) {
+	    alert("Error: " + error.code + " " + error.message);
+	  }
+	});
+ 
 }
 
 /**
@@ -133,7 +184,7 @@ var TaskStore = assign({}, EventEmitter.prototype, {
    * Tests whether all the remaining TODO items are marked as completed.
    * @return {boolean}
    */
-  areAllComplete: function() {
+  allComplete: function() {
     for (var id in _todos) {
       if (!_todos[id].complete) {
         return false;
@@ -160,7 +211,7 @@ var TaskStore = assign({}, EventEmitter.prototype, {
                
                  _todos[objectResult.id] = {
                      id: objectResult.id,
-                     complete : false,    
+                     complete : objectResult.get("IsCompleted"),    
                      name : objectResult.get("name"),
                      description : objectResult.get("Description"),
                      priority : objectResult.get("Priority")
@@ -216,7 +267,7 @@ AppDispatcher.register(function(payload) {
       }
       break;
     case TaskConstants.TODO_TOGGLE_COMPLETE_ALL:
-      if (TaskStore.areAllComplete()) {
+      if (TaskStore.allComplete()) {
         updateAll({complete: false});
       } else {
         updateAll({complete: true});
@@ -224,11 +275,11 @@ AppDispatcher.register(function(payload) {
       break;
 
     case TaskConstants.TODO_UNDO_COMPLETE:
-      update(action.id, {complete: false});
+      update(action.id, false);
       break;
 
     case TaskConstants.TODO_COMPLETE:
-      update(action.id, {complete: true});
+      update(action.id, true);
       break;
 
     case TaskConstants.TODO_DESTROY:

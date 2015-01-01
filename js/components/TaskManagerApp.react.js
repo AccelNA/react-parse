@@ -14,7 +14,7 @@ var TaskStore = require('../stores/TaskStore');
 function getTodoState() {
   return {
     allTodos: TaskStore.getAll(),
-    areAllComplete: TaskStore.areAllComplete()
+    areAllComplete: TaskStore.allComplete()
   };
 }
 var TaskApp = React.createClass({
@@ -36,6 +36,7 @@ var TaskApp = React.createClass({
    * @return {object}
    */
   render: function() {
+  	
   	return (
   	  
       <div id="layout" className="pure-g">

@@ -89,7 +89,7 @@ var Header = React.createClass({
    * used in different ways.
    */
    onSave: function() {
-   	/*var moreNotes = this.props.notess;*/
+   	
    allNotes = TaskStore.getAllNote();
 	   	var text = {
 	   		name:this.state.name, 
