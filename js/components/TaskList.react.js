@@ -10,7 +10,7 @@ var TaskStore = require('../stores/TaskStore');
 var TaskList = React.createClass({
 
   propTypes: {
-  	allTodos: ReactPropTypes.object.isRequired,
+  	allTasks: ReactPropTypes.object.isRequired,
     areAllComplete: ReactPropTypes.bool.isRequired
   },
 
@@ -20,30 +20,24 @@ var TaskList = React.createClass({
   render: function() {
     // This section should be hidden by default
     // and shown when there are todos.
-    if (Object.keys(this.props.allTodos).length < 1) {
+    if (Object.keys(this.props.allTasks).length < 1) {
       return null;
     }
 
-    var allTodos = this.props.allTodos;
+    var allTasks = this.props.allTasks;
     var todos = [];
-    for (var key in allTodos) {
-      todos.push(<TaskItem key={key} todo={allTodos[key]} />);
+    for (var key in allTasks) {
+      todos.push(<TaskItem key={key} todo={allTasks[key]} />);
     }
 
     return (
       <div id="listing">
         
-        <label htmlFor="toggle-all">Mark all as complete</label>
         <table className="pure-table pure-table-bordered">
         <thead>
 	        <tr>
 	            <th>
-		            <input
-			          id="toggle-all"
-			          type="checkbox"
-			          onChange={this._onToggleCompleteAll}
-			          checked={this.props.areAllComplete ? 'checked' : ''}
-			        />
+		            
 		        </th>
 	            <th>Name</th>
 	            <th>Description</th>
@@ -60,7 +54,7 @@ var TaskList = React.createClass({
   },
 
   /**
-   * Event handler to mark all TODOs as complete
+   * Event handler to mark all TASKs as complete
    */
   _onToggleCompleteAll: function() {
     TaskActions.toggleCompleteAll();

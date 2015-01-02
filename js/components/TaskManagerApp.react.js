@@ -9,11 +9,11 @@ var React = require('react');
 var TaskStore = require('../stores/TaskStore');
 
 /**
- * Retrieve the current TODO data from the TaskStore
+ * Retrieve the current TASK data from the TaskStore
  */
 function getTodoState() {
   return {
-    allTodos: TaskStore.getAll(),
+    allTasks: TaskStore.getAll(),
     areAllComplete: TaskStore.allComplete()
   };
 }
@@ -31,7 +31,9 @@ var TaskApp = React.createClass({
   componentWillUnmount: function() {
     TaskStore.removeChangeListener(this._getSate);
   },
-
+   /*shouldComponentUpdate : function() {  	
+  	 return getTodoState();
+  },*/
   /**
    * @return {object}
    */
@@ -45,10 +47,10 @@ var TaskApp = React.createClass({
        <div className="pure-u-1 pure-u-md-3-5">          
         <Form />
         <TaskList
-          allTodos={this.state.allTodos}
+          allTasks={this.state.allTasks}
           areAllComplete={this.state.areAllComplete}
         />
-        <ListBottom allTodos={this.state.allTodos} />       
+        <ListBottom allTasks={this.state.allTasks} />       
        </div>
        <div className="pure-u-1 pure-u-md-1-5"></div>    
       </div>

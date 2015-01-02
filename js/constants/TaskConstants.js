@@ -6,11 +6,11 @@
 var keyMirror = require('keymirror');
 
 module.exports = keyMirror({
-  TODO_CREATE: null,
+  TASK_CREATE: null,
   NOTE_CREATE: null,
-  TODO_COMPLETE: null,
-  TODO_DESTROY: null,
-  TODO_DESTROY_COMPLETED: null,
-  TODO_TOGGLE_COMPLETE_ALL: null,
-  TODO_UNDO_COMPLETE: null
+  TASK_COMPLETE: null,
+  TASK_DESTROY: null,
+  TASK_DESTROY_COMPLETED: null,
+  TASK_TOGGLE_COMPLETE_ALL: null,
+  TASK_UNDO_COMPLETE: null
 });

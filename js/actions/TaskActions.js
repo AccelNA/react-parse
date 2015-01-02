@@ -12,7 +12,7 @@ var TaskActions = {
    */
   create: function(text) {
     AppDispatcher.handleViewAction({
-      actionType: TaskConstants.TODO_CREATE,
+      actionType: TaskConstants.TASK_CREATE,
       text: text
     });
   },
@@ -31,12 +31,12 @@ var TaskActions = {
     var id = task.id;
     if (task.complete) {
       AppDispatcher.handleViewAction({
-        actionType: TaskConstants.TODO_UNDO_COMPLETE,
+        actionType: TaskConstants.TASK_UNDO_COMPLETE,
         id: id
       });
     } else {
       AppDispatcher.handleViewAction({
-        actionType: TaskConstants.TODO_COMPLETE,
+        actionType: TaskConstants.TASK_COMPLETE,
         id: id
       });
     }
@@ -47,7 +47,7 @@ var TaskActions = {
    */
   toggleCompleteAll: function() {
     AppDispatcher.handleViewAction({
-      actionType: TaskConstants.TODO_TOGGLE_COMPLETE_ALL
+      actionType: TaskConstants.TASK_TOGGLE_COMPLETE_ALL
     });
   },
 
@@ -56,7 +56,7 @@ var TaskActions = {
    */
   destroy: function(id) {
     AppDispatcher.handleViewAction({
-      actionType: TaskConstants.TODO_DESTROY,
+      actionType: TaskConstants.TASK_DESTROY,
       id: id
     });
   },
@@ -66,7 +66,7 @@ var TaskActions = {
    */
   destroyCompleted: function() {
     AppDispatcher.handleViewAction({
-      actionType: TaskConstants.TODO_DESTROY_COMPLETED
+      actionType: TaskConstants.TASK_DESTROY_COMPLETED
     });
   }
 

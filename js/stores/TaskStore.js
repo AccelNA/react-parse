@@ -15,13 +15,13 @@ var TaskConstants = require('../constants/TaskConstants');
 var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
-var _todos = {};
+var _tasks = {};
 var _notes = {};
 Parse.initialize(ConfigComp.APP_ID,
                      ConfigComp.JS_ID);
 /**
- * Create a TODO item.
- * @param  {string} text The content of the TODO
+ * Create a TASK item.
+ * @param  {string} text The content of the TASK
  */
 function create(text) {
                      
@@ -79,13 +79,13 @@ function createNote(text) {
   _notes[id] = {note: text};
 }
 /**
- * Update a TODO item.
+ * Update a TASK item.
  * @param  {string} id
  * @param {object} updates An object literal containing only the data to be
  *     updated.
  */
 function update(id, IsCompleted) {
-	_todos[id] = assign({}, _todos[id], {complete: IsCompleted});
+	_tasks[id] = assign({}, _tasks[id], {complete: IsCompleted});
 	var Task            =   Parse.Object.extend("Task");
 	var query = new Parse.Query(Task);
 	query.equalTo("objectId", id);
@@ -94,7 +94,7 @@ function update(id, IsCompleted) {
 	    taskObject.set('CompletedOn',new Date());
     	taskObject.set('IsCompleted',IsCompleted);
 	    taskObject.save();
-	   // _todos[id] = assign({}, _todos[id], {complete: IsCompleted});
+	   // _tasks[id] = assign({}, _tasks[id], {complete: IsCompleted});
 	  },
 	  error: function(error) {
 	    alert("Error: " + error.code + " " + error.message);
@@ -105,24 +105,24 @@ function update(id, IsCompleted) {
 }
 
 /**
- * Update all of the TODO items with the same object.
- *     the data to be updated.  Used to mark all TODOs as completed.
+ * Update all of the TASK items with the same object.
+ *     the data to be updated.  Used to mark all TASKs as completed.
  * @param  {object} updates An object literal containing only the data to be
  *     updated.
 
  */
 function updateAll(updates) {
-  for (var id in _todos) {
+  for (var id in _tasks) {
     update(id, updates);
   }
 }
 
 /**
- * Delete a TODO item.
+ * Delete a TASK item.
  * @param  {string} id
  */
 function destroy(id) {
-  delete _todos[id];
+  delete _tasks[id];
   
 	var Task            =   Parse.Object.extend("Task");
 	var query1 = new Parse.Query(Task);
@@ -168,11 +168,11 @@ function destroy(id) {
 }
 
 /**
- * Delete all the completed TODO items.
+ * Delete all the completed TASK items.
  */
 function destroyCompleted() {
-  for (var id in _todos) {
-    if (_todos[id].complete) {
+  for (var id in _tasks) {
+    if (_tasks[id].complete) {
       destroy(id);
     }
   }
@@ -181,12 +181,12 @@ function destroyCompleted() {
 var TaskStore = assign({}, EventEmitter.prototype, {
 
   /**
-   * Tests whether all the remaining TODO items are marked as completed.
+   * Tests whether all the remaining TASK items are marked as completed.
    * @return {boolean}
    */
   allComplete: function() {
-    for (var id in _todos) {
-      if (!_todos[id].complete) {
+    for (var id in _tasks) {
+      if (!_tasks[id].complete) {
         return false;
       }
     }
@@ -194,11 +194,11 @@ var TaskStore = assign({}, EventEmitter.prototype, {
   },
 
   /**
-   * Get the entire collection of TODOs.
+   * Get the entire collection of TASKs.
    * @return {object}
    */
   getAll: function() { 
-    return _todos;
+    return _tasks;
   },
   getAllTasks: function(callback) {
     var Task            =   Parse.Object.extend("Task");
@@ -209,7 +209,7 @@ var TaskStore = assign({}, EventEmitter.prototype, {
                              
                var objectResult = tasks[index];
                
-                 _todos[objectResult.id] = {
+                 _tasks[objectResult.id] = {
                      id: objectResult.id,
                      complete : objectResult.get("IsCompleted"),    
                      name : objectResult.get("name"),
@@ -218,7 +218,7 @@ var TaskStore = assign({}, EventEmitter.prototype, {
                     }; 
                    
             }   
-        callback(_todos);
+        callback(_tasks);
       },
       error: function(obj, err) {
         console.error('getAll() error', obj, err);
@@ -253,7 +253,7 @@ AppDispatcher.register(function(payload) {
   var text;
 
   switch(action.actionType) {
-    case TaskConstants.TODO_CREATE:
+    case TaskConstants.TASK_CREATE:
       name= action.text['name'];
       text = action.text;
       if ( name.trim() !== '') {
@@ -266,7 +266,7 @@ AppDispatcher.register(function(payload) {
         createNote(note_desc);
       }
       break;
-    case TaskConstants.TODO_TOGGLE_COMPLETE_ALL:
+    case TaskConstants.TASK_TOGGLE_COMPLETE_ALL:
       if (TaskStore.allComplete()) {
         updateAll({complete: false});
       } else {
@@ -274,19 +274,19 @@ AppDispatcher.register(function(payload) {
       }
       break;
 
-    case TaskConstants.TODO_UNDO_COMPLETE:
+    case TaskConstants.TASK_UNDO_COMPLETE:
       update(action.id, false);
       break;
 
-    case TaskConstants.TODO_COMPLETE:
+    case TaskConstants.TASK_COMPLETE:
       update(action.id, true);
       break;
 
-    case TaskConstants.TODO_DESTROY:
+    case TaskConstants.TASK_DESTROY:
       destroy(action.id);
       break;
 
-    case TaskConstants.TODO_DESTROY_COMPLETED:
+    case TaskConstants.TASK_DESTROY_COMPLETED:
       destroyCompleted();
       break;
 

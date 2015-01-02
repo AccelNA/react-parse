@@ -14,23 +14,23 @@ var TaskActions = require('../actions/TaskActions');
 var ListBottom = React.createClass({
 
   propTypes: {
-    allTodos: ReactPropTypes.object.isRequired
+    allTasks: ReactPropTypes.object.isRequired
   },
 
   /**
    * @return {object}
    */
   render: function() {
-    var allTodos = this.props.allTodos;
-    var total = Object.keys(allTodos).length;
+    var allTasks = this.props.allTasks;
+    var total = Object.keys(allTasks).length;
 
     if (total === 0) {
       return null;
     }
 
     var completed = 0;
-    for (var key in allTodos) {
-      if (allTodos[key].complete) {
+    for (var key in allTasks) {
+      if (allTasks[key].complete) {
         completed++;
       }
     }
@@ -39,17 +39,7 @@ var ListBottom = React.createClass({
     var itemsLeftPhrase = itemsLeft === 1 ? ' item ' : ' items ';
     itemsLeftPhrase += 'left';
 
-    // Undefined and thus not rendered if no completed items are left.
-    var clearCompletedButton;
-    if (completed) {
-      clearCompletedButton =
-        <button
-          className="button-error pure-button button-xsmall"
-          onClick={this._onClearCompletedClick}>
-          Delete All ({completed})
-        </button>;
-    }
-
+   
   	return (
       <div id="listbottom">
         <span id="todo-count">
@@ -58,13 +48,12 @@ var ListBottom = React.createClass({
           </strong>
           {itemsLeftPhrase}
         </span>
-        {clearCompletedButton}
       </div>
     );
   },
 
   /**
-   * Event handler to delete all completed TODOs
+   * Event handler to delete all completed TASKs
    */
   _onClearCompletedClick: function() {
     TaskActions.destroyCompleted();
