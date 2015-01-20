@@ -68,6 +68,11 @@ var TaskActions = {
     AppDispatcher.handleViewAction({
       actionType: TaskConstants.TASK_DESTROY_COMPLETED
     });
+  },
+  getAllTasks: function() {
+    AppDispatcher.handleViewAction({
+      actionType: TaskConstants.TASK_GET_ALL
+    });
   }
 
 };

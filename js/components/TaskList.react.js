@@ -20,11 +20,11 @@ var TaskList = React.createClass({
   render: function() {
     // This section should be hidden by default
     // and shown when there are todos.
+    
     if (Object.keys(this.props.allTasks).length < 1) {
       return null;
     }
-
-    var allTasks = this.props.allTasks;
+    var allTasks = this.props.allTasks;   
     var todos = [];
     for (var key in allTasks) {
       todos.push(<TaskItem key={key} todo={allTasks[key]} />);

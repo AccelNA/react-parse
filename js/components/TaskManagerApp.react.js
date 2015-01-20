@@ -7,33 +7,30 @@ var Form = require('./Form.react');
 var TaskList = require('./TaskList.react');
 var React = require('react');
 var TaskStore = require('../stores/TaskStore');
-
+var TaskActions = require('../actions/TaskActions');
 /**
  * Retrieve the current TASK data from the TaskStore
  */
+
 function getTodoState() {
   return {
     allTasks: TaskStore.getAll(),
     areAllComplete: TaskStore.allComplete()
   };
 }
+
+
 var TaskApp = React.createClass({
 
   getInitialState: function() {
     return getTodoState();
   },
 
-  componentDidMount: function() {  	
-  	TaskStore.getAllTasks(this._getSate);
+  componentDidMount: function() {
+  	TaskStore.getCallbackAllTasks(this._getSate);
     TaskStore.addChangeListener(this._onChange);
   },
 
-  componentWillUnmount: function() {
-    TaskStore.removeChangeListener(this._getSate);
-  },
-   /*shouldComponentUpdate : function() {  	
-  	 return getTodoState();
-  },*/
   /**
    * @return {object}
    */
@@ -61,11 +58,13 @@ var TaskApp = React.createClass({
    * Event handler for 'change' events coming from the TaskStore
    */
   _getSate: function() {
+  	console.log('dd');
     this.setState(getTodoState());
   },
   
   _onChange : function(){
-	TaskStore.getAllTasks(this._getSate);
+  console.log('uu');
+	this.setState(getTodoState());	
   }
 });
 

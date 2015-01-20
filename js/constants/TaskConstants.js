@@ -7,6 +7,7 @@ var keyMirror = require('keymirror');
 
 module.exports = keyMirror({
   TASK_CREATE: null,
+  TASK_GET_ALL: null,
   NOTE_CREATE: null,
   TASK_COMPLETE: null,
   TASK_DESTROY: null,

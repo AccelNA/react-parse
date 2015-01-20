@@ -17,8 +17,8 @@ var assign = require('object-assign');
 var CHANGE_EVENT = 'change';
 var _tasks = {};
 var _notes = {};
-Parse.initialize(ConfigComp.APP_ID,
-                     ConfigComp.JS_ID);
+
+Parse.initialize(ConfigComp.APP_ID, ConfigComp.JS_ID);
 /**
  * Create a TASK item.
  * @param  {string} text The content of the TASK
@@ -34,7 +34,10 @@ function create(text) {
     taskObject.set('CompletedOn',new Date());
     taskObject.set('Description',text.description);
     taskObject.set('IsCompleted',false);
-        
+    
+    /*var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+     */
+                        
     var acl = new Parse.ACL();
     acl.setPublicReadAccess(false);
     var currentUser = Parse.User.current();
@@ -55,8 +58,8 @@ function create(text) {
            
            noteObject.setACL( acl );
            noteObject.save(null, {
-                 success: function(taskResult) {
-                           //init();
+                 success: function(taskResult) {                           
+                           //console.log(taskResult.id);                           
                   },
                 error: function(taskResult, error) {
                            console.log(error);   
@@ -66,7 +69,13 @@ function create(text) {
       
       taskObject.save(null, {
       success: function(taskResult) {
-             //console.log(taskResult);   
+             _tasks[taskResult.id] = {
+	                     id: taskResult.id,
+	                     complete : false,    
+	                     name : text.name,
+	                     description : text.description,
+	                     priority : text.priority
+	                    };
        },
       error: function(taskResult, error) {
              console.log(error);   
@@ -130,28 +139,7 @@ function destroy(id) {
 	query1.first({
 	  success: function(taskObject) {
 	     taskObject.destroy({
-		  success: function(myObject) {
-		  	
-			/*var Note            =   Parse.Object.extend("Note");
-			var query2 = new Parse.Query(Note);
-			
-			query2.equalTo("parent", id);
-			query2.first({
-			  success: function(noteObject) {
-			     noteObject.destroy({
-				  success: function(myObject2) {
-				  	
-				  },
-				  error: function(myObject2, error) {
-				  }
-				});
-			  },
-			  error: function(error) {
-			    alert("Error: " + error.code + " " + error.message);
-			  }
-			});*/
-		  	
-		  	
+		  success: function(myObject) {		  	
 		  	
 		  },
 		  error: function(myObject, error) {
@@ -177,7 +165,38 @@ function destroyCompleted() {
     }
   }
 }
-
+/*_todos[id] = {
+    id: id,
+    complete: false,
+    text: text
+  };*/
+function getAllTasks() {
+    var Task            =   Parse.Object.extend("Task");
+    var query           =   new Parse.Query(Task); 
+    query.find({
+      success: function(tasks) {
+      	
+      	for(var index=0;index<tasks.length;index++){
+                             
+               var objectResult = tasks[index];               
+                _tasks[objectResult.id] = {
+                     id: objectResult.id,
+                     complete : objectResult.get("IsCompleted"),    
+                     name : objectResult.get("name"),
+                     description : objectResult.get("Description"),
+                     priority : objectResult.get("Priority")
+                    }; 
+                 
+            }
+            return _tasks;
+      },
+      error: function(obj, err) {
+        console.error('getAll() error', obj, err);
+      }
+    });
+    return '--';
+  }
+ 
 var TaskStore = assign({}, EventEmitter.prototype, {
 
   /**
@@ -197,10 +216,11 @@ var TaskStore = assign({}, EventEmitter.prototype, {
    * Get the entire collection of TASKs.
    * @return {object}
    */
-  getAll: function() { 
+  getAll: function() {  
     return _tasks;
   },
-  getAllTasks: function(callback) {
+  getCallbackAllTasks: function(callback){  	
+  
     var Task            =   Parse.Object.extend("Task");
     var query           =   new Parse.Query(Task); 
     query.find({
@@ -215,9 +235,9 @@ var TaskStore = assign({}, EventEmitter.prototype, {
                      name : objectResult.get("name"),
                      description : objectResult.get("Description"),
                      priority : objectResult.get("Priority")
-                    }; 
-                   
-            }   
+                    };
+            } 
+
         callback(_tasks);
       },
       error: function(obj, err) {
@@ -227,6 +247,10 @@ var TaskStore = assign({}, EventEmitter.prototype, {
   },
   getAllNote: function() {
     return _notes;
+  },
+  delNote: function() {
+	_notes = {};
+	 return _notes;
   },
   emitChange: function() {
     this.emit(CHANGE_EVENT);
@@ -253,6 +277,7 @@ AppDispatcher.register(function(payload) {
   var text;
 
   switch(action.actionType) {
+  	
     case TaskConstants.TASK_CREATE:
       name= action.text['name'];
       text = action.text;
@@ -290,6 +315,10 @@ AppDispatcher.register(function(payload) {
       destroyCompleted();
       break;
 
+	case TaskConstants.TASK_GET_ALL:
+      getAllTasks();
+      break;
+      
     default:
       return true;
   }

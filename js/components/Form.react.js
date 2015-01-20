@@ -7,6 +7,7 @@ var TaskActions = require('../actions/TaskActions');
 var ReactPropTypes = React.PropTypes;
 var Notes = require('./Notes.react');
 var TaskStore = require('../stores/TaskStore');
+var TaskApp = require('../components/TaskManagerApp.react');
 var ENTER_KEY_CODE = 13;
 
 var Header = React.createClass({
@@ -98,9 +99,18 @@ var Header = React.createClass({
 	   		notes:allNotes
 	   		}; 
 	   	name = text['name'];
-	    if (name.trim()){
+	    if (name.trim()){	    	
 	      TaskActions.create(text);
+	      this.setState( {
+	   		name:'', 
+	   		description:'',
+	   		priority:0,
+	   		note_desc:''
+	   		});
+	   	  TaskStore.delNote();
+	   	  //TaskActions.getAllTasks();
 	    }
+	    
     },
     
 	addNotes: function() {
