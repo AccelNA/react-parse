@@ -23,65 +23,6 @@ Parse.initialize(ConfigComp.APP_ID, ConfigComp.JS_ID);
  * Create a TASK item.
  * @param  {string} text The content of the TASK
  */
-function create(text) {
-                     
-    var Task            =   Parse.Object.extend("Task");
-    var Note            =   Parse.Object.extend("Note");
-    var taskObject      =   new Task();
-    
-    taskObject.set('name', text.name);
-    taskObject.set('Priority', text.priority);
-    taskObject.set('CompletedOn',new Date());
-    taskObject.set('Description',text.description);
-    taskObject.set('IsCompleted',false);
-    
-    /*var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-     */
-                        
-    var acl = new Parse.ACL();
-    acl.setPublicReadAccess(false);
-    var currentUser = Parse.User.current();
-    if (currentUser) {
-         acl.setReadAccess( 'User', true );
-    } else {
-        acl.setReadAccess( 'Guest', true );
-    }   
-            
-      allNotes=text.notes;
-      for (var key in allNotes) {
-          
-           noteval = (allNotes[key]); 
-           var noteObject      =   new Note();
-           
-           noteObject.set('note',noteval.note);
-           noteObject.set('parent',taskObject);
-           
-           noteObject.setACL( acl );
-           noteObject.save(null, {
-                 success: function(taskResult) {                           
-                           //console.log(taskResult.id);                           
-                  },
-                error: function(taskResult, error) {
-                           console.log(error);   
-                 }
-        });               
-      }
-      
-      taskObject.save(null, {
-      success: function(taskResult) {
-             _tasks[taskResult.id] = {
-	                     id: taskResult.id,
-	                     complete : false,    
-	                     name : text.name,
-	                     description : text.description,
-	                     priority : text.priority
-	                    };
-       },
-      error: function(taskResult, error) {
-             console.log(error);   
-      }
-    });
-}
 
 function createNote(text) {
   var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
@@ -103,7 +44,6 @@ function update(id, IsCompleted) {
 	    taskObject.set('CompletedOn',new Date());
     	taskObject.set('IsCompleted',IsCompleted);
 	    taskObject.save();
-	   // _tasks[id] = assign({}, _tasks[id], {complete: IsCompleted});
 	  },
 	  error: function(error) {
 	    alert("Error: " + error.code + " " + error.message);
@@ -165,37 +105,6 @@ function destroyCompleted() {
     }
   }
 }
-/*_todos[id] = {
-    id: id,
-    complete: false,
-    text: text
-  };*/
-function getAllTasks() {
-    var Task            =   Parse.Object.extend("Task");
-    var query           =   new Parse.Query(Task); 
-    query.find({
-      success: function(tasks) {
-      	
-      	for(var index=0;index<tasks.length;index++){
-                             
-               var objectResult = tasks[index];               
-                _tasks[objectResult.id] = {
-                     id: objectResult.id,
-                     complete : objectResult.get("IsCompleted"),    
-                     name : objectResult.get("name"),
-                     description : objectResult.get("Description"),
-                     priority : objectResult.get("Priority")
-                    }; 
-                 
-            }
-            return _tasks;
-      },
-      error: function(obj, err) {
-        console.error('getAll() error', obj, err);
-      }
-    });
-    return '--';
-  }
  
 var TaskStore = assign({}, EventEmitter.prototype, {
 
@@ -236,6 +145,7 @@ var TaskStore = assign({}, EventEmitter.prototype, {
                      description : objectResult.get("Description"),
                      priority : objectResult.get("Priority")
                     };
+                    
             } 
 
         callback(_tasks);
@@ -245,6 +155,66 @@ var TaskStore = assign({}, EventEmitter.prototype, {
       }
     });
   },
+
+  create: function(text) {
+  	Parse.initialize(ConfigComp.APP_ID, ConfigComp.JS_ID);
+  	 var Task            =   Parse.Object.extend("Task");
+    var Note            =   Parse.Object.extend("Note");
+    var taskObject      =   new Task();
+    
+    taskObject.set('name', text.name);
+    taskObject.set('Priority', text.priority);
+    taskObject.set('CompletedOn',new Date());
+    taskObject.set('Description',text.description);
+    taskObject.set('IsCompleted',false);
+   
+                        
+    var acl = new Parse.ACL();
+    acl.setPublicReadAccess(false);
+    var currentUser = Parse.User.current();
+    if (currentUser) {
+         acl.setReadAccess( 'User', true );
+    } else {
+        acl.setReadAccess( 'Guest', true );
+    }   
+            
+      allNotes=text.notes;
+      for (var key in allNotes) {
+          
+           noteval = (allNotes[key]); 
+           var noteObject      =   new Note();
+           
+           noteObject.set('note',noteval.note);
+           noteObject.set('parent',taskObject);
+           
+           noteObject.setACL( acl );
+           noteObject.save(null, {
+                 success: function(taskResult) {                           
+                           //console.log(taskResult.id);                           
+                  },
+                error: function(taskResult, error) {
+                           console.log(error);   
+                 }
+        });               
+      }
+      
+      taskObject.save(null, {
+      success: function(taskResult) {
+             _tasks[taskResult.id] = {
+	                     id: taskResult.id,
+	                     complete : false,    
+	                     name : text.name,
+	                     description : text.description,
+	                     priority : text.priority
+	                    };
+	           TaskStore.emitChange();       
+       },
+      error: function(taskResult, error) {
+             console.log(error);   
+      }
+    });
+  },
+  
   getAllNote: function() {
     return _notes;
   },
@@ -278,11 +248,11 @@ AppDispatcher.register(function(payload) {
 
   switch(action.actionType) {
   	
-    case TaskConstants.TASK_CREATE:
+    case TaskConstants.TASK_CREATE:     
       name= action.text['name'];
       text = action.text;
       if ( name.trim() !== '') {
-        create(text);
+        TaskStore.create(text);
       }
       break;
 	case TaskConstants.NOTE_CREATE:
@@ -313,10 +283,6 @@ AppDispatcher.register(function(payload) {
 
     case TaskConstants.TASK_DESTROY_COMPLETED:
       destroyCompleted();
-      break;
-
-	case TaskConstants.TASK_GET_ALL:
-      getAllTasks();
       break;
       
     default:

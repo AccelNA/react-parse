@@ -58,12 +58,10 @@ var TaskApp = React.createClass({
    * Event handler for 'change' events coming from the TaskStore
    */
   _getSate: function() {
-  	console.log('dd');
     this.setState(getTodoState());
   },
   
   _onChange : function(){
-  console.log('uu');
 	this.setState(getTodoState());	
   }
 });
