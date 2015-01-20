@@ -30,11 +30,14 @@ var Header = React.createClass({
   },
   render: function() {
   	this.state.priority_opt.push(<option key={0} value={0}>Select</option>);
-  	for (var i = 1; i <= 5; i++) {
+  	/*for (var i = 1; i <= 5; i++) {
         this.state.priority_opt.push(
             <option key={i} value={i}>{i}</option>
         );
-    }
+    }*/
+     this.state.priority_opt.push( <option key={1} value={'High'}>{'High'}</option> );
+     this.state.priority_opt.push( <option key={2} value={'Medium'}>{'Medium'}</option> );
+     this.state.priority_opt.push( <option key={3} value={'Low'}>{'Low'}</option> );
     return (     
     	
 	      <div className="pure-form pure-form-stacked" id="main">
